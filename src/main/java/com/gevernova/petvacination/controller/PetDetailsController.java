@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.gevernova.petvacination.service.PetServiceImplementation;
+import com.gevernova.petvacination.service.PetDetailsServices; // Import the interface
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -22,7 +22,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor// Lombok to auto-inject PetServiceImplementation
 public class PetDetailsController {
 
-    private final PetServiceImplementation petServiceImplementation;
+    // Change from PetServiceImplementation to PetDetailsServices (the interface)
+    private final PetDetailsServices petDetailsServices; // Use the interface type
+
+
     private static final Logger logger = LoggerFactory.getLogger(PetDetailsController.class);
 
 
@@ -30,9 +33,9 @@ public class PetDetailsController {
     public ResponseEntity<ResponseDTO> getAllPets() {
         logger.info("Received request to get all pets.");
 
-        List<PetDetails> pets = petServiceImplementation.getAllPetDetails();
+        List<PetDetails> pets = petDetailsServices.getAllPetDetails();
         List<PetDataDTO> petDataDTOs = pets.stream()
-                .map(petServiceImplementation::mapToResponse)
+                .map(petDetailsServices::mapToResponse)
                 .collect(Collectors.toList());
 
         logger.info("Fetched {} pets.", petDataDTOs.size());
@@ -47,27 +50,30 @@ public class PetDetailsController {
 
     @PostMapping
     public ResponseEntity<ResponseDTO> registerPet(@Valid @RequestBody PetRequestDTO requestDTO) {
-            logger.info("Received request to register a new pet for owner: {}", requestDTO.getOwnerName());
+        logger.info("Received request to register a new pet for owner: {}", requestDTO.getOwnerName());
 
-            PetDataDTO responseData = petServiceImplementation.requestToResponse(requestDTO);
-            logger.info("Pet registered successfully with ID: {}", responseData.getId());
-            return new ResponseEntity <> (
-                    ResponseDTO.builder()
-                            .message("Successfully registered new Pet")
-                            .data(responseData)
-                            .build()
-                    ,HttpStatus.CREATED
-                    );
+        PetDetails petDetails = petDetailsServices.mapToEntity(requestDTO);
+        PetDetails savedPet = petDetailsServices.createPetDetails(petDetails);
+        PetDataDTO responseData = petDetailsServices.mapToResponse(savedPet);
+
+        logger.info("Pet registered successfully with ID: {}", responseData.getId());
+        return new ResponseEntity <> (
+                ResponseDTO.builder()
+                        .message("Successfully registered new Pet")
+                        .data(responseData)
+                        .build()
+                ,HttpStatus.CREATED
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO> getPetById(@PathVariable Long id){
         logger.info("Received request to get pet by ID: {}", id);
 
-        Optional<PetDetails> petOptional=petServiceImplementation.getPetDetailsById(id);
+        Optional<PetDetails> petOptional=petDetailsServices.getPetDetailsById(id);
 
         if(petOptional.isPresent()){
-            PetDataDTO responseData=petServiceImplementation.mapToResponse(petOptional.get());
+            PetDataDTO responseData=petDetailsServices.mapToResponse(petOptional.get());
             return new ResponseEntity<>(ResponseDTO.builder()
                     .message("Fetched Pet details with pet Id: "+id)
                     .data(responseData)
@@ -76,16 +82,16 @@ public class PetDetailsController {
         }else{
             logger.warn("Pet with ID {} not found. Throwing PetNotFoundException.", id);
             throw new PetNotFoundException("Pet with ID: " + id + " was not found.");
-            }
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO> updatePetDetailsById(@PathVariable Long id, @Valid @RequestBody PetRequestDTO requestDTO){
         logger.info("Received request to update pet with ID: {}", id);
-        PetDetails petDetailsToUpdate = petServiceImplementation.mapToEntity(requestDTO);
-        PetDetails updatedPet = petServiceImplementation.updatePetDetails(id, petDetailsToUpdate);
+        PetDetails petDetailsToUpdate = petDetailsServices.mapToEntity(requestDTO);
+        PetDetails updatedPet = petDetailsServices.updatePetDetails(id, petDetailsToUpdate);
 
-        PetDataDTO responseData = petServiceImplementation.mapToResponse(updatedPet);
+        PetDataDTO responseData = petDetailsServices.mapToResponse(updatedPet);
 
         logger.info("Pet with ID {} updated successfully.", id);
         return new ResponseEntity<>(ResponseDTO.builder()
@@ -98,7 +104,7 @@ public class PetDetailsController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deletePetDetails(@PathVariable Long id){
         logger.info("Received request to delete pet with ID: {}", id);
-        petServiceImplementation.deletePetDetails(id); //this will throw exception if not present
+        petDetailsServices.deletePetDetails(id); //this will throw exception if not present
         logger.info("Pet with ID {} deleted successfully.", id);
         return new ResponseEntity<>(ResponseDTO.builder()
                 .message("Pet deleted successfully")
@@ -107,6 +113,16 @@ public class PetDetailsController {
                 HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/vaccinated/{name}")
+    public ResponseEntity<ResponseDTO> getPetsWithSameVaccine(@PathVariable String name) {
+        List<PetDetails> petDetailsList = petDetailsServices.getPetsByVaccinationName(name);
+        List<PetDataDTO> petDataDTO = petDetailsList.stream()
+                .map(petDetailsServices::mapToResponse)
+                .toList();
 
+        return new ResponseEntity<>(ResponseDTO.builder()
+                .message("Fetched all pet details with vaccination: " + name)
+                .data(petDataDTO)
+                .build(), HttpStatus.OK);
+    }
 }
-

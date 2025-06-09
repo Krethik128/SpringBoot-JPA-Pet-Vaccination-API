@@ -8,6 +8,7 @@ import com.gevernova.petvacination.entity.VaccinationDetails;
 import com.gevernova.petvacination.exceptionhandling.PetNotFoundException;
 import com.gevernova.petvacination.repository.PetDetailsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -92,6 +93,8 @@ public class PetServiceImplementation implements PetDetailsServices {
         return savedPetDetails;
     }
 
+
+
     @Override
     public PetDetails updatePetDetails(Long id, PetDetails updatedPetDetails) {
         logger.info("Updating Pet Details for ID: {}", id);
@@ -143,6 +146,11 @@ public class PetServiceImplementation implements PetDetailsServices {
         }
         petDetailsRepository.deleteById(id);
         logger.info("Pet with ID: {} deleted successfully.", id);
+    }
+
+    @Override
+    public List<PetDetails> getPetsByVaccinationName(String vaccineName){
+        return petDetailsRepository.petsVaccinatedBySameDisease(vaccineName);
     }
 
 
