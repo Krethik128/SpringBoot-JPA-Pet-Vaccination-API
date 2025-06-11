@@ -9,12 +9,12 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class PetDataDTO {
+public class PetDTO {
     private Long id;
     private String name;
     private Species species;
     private String breed;
     private String ownerName;
     private String ownerContact;
-    private java.util.List<VaccinationDataDTO> vaccines;
+    private java.util.List<VaccinationDTO> vaccines;
 }

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PetDetailsRepository extends JpaRepository<PetDetails, Long> {
 
-    @Query("SELECT p FROM PetDetails p JOIN p.vaccines v WHERE LOWER(v.name) = LOWER(:vaccineName)")
+    @Query(value = "SELECT p FROM PetDetails p JOIN p.vaccines v WHERE LOWER(v.name) = LOWER(:vaccineName)")
     java.util.List<PetDetails> petsVaccinatedBySameDisease(@Param("vaccineName") String vaccineName);
 }

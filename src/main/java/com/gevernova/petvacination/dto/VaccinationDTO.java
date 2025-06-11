@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VaccinationDataDTO {
+public class VaccinationDTO {
     private String name;
     private LocalDate dateGiven;
 }

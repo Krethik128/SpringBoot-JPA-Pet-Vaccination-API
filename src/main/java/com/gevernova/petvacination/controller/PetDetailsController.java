@@ -1,9 +1,10 @@
 package com.gevernova.petvacination.controller;
-import com.gevernova.petvacination.dto.PetDataDTO;
+import com.gevernova.petvacination.dto.PetDTO;
 import com.gevernova.petvacination.dto.PetRequestDTO;
 import com.gevernova.petvacination.dto.ResponseDTO;
 import com.gevernova.petvacination.entity.PetDetails;
 import com.gevernova.petvacination.exceptionhandling.PetNotFoundException;
+import com.gevernova.petvacination.mapper.Mapper;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pets")
@@ -24,8 +24,6 @@ public class PetDetailsController {
 
     // Change from PetServiceImplementation to PetDetailsServices (the interface)
     private final PetDetailsServices petDetailsServices; // Use the interface type
-
-
     private static final Logger logger = LoggerFactory.getLogger(PetDetailsController.class);
 
 
@@ -33,16 +31,13 @@ public class PetDetailsController {
     public ResponseEntity<ResponseDTO> getAllPets() {
         logger.info("Received request to get all pets.");
 
-        List<PetDetails> pets = petDetailsServices.getAllPetDetails();
-        List<PetDataDTO> petDataDTOs = pets.stream()
-                .map(petDetailsServices::mapToResponse)
-                .collect(Collectors.toList());
+        List<PetDTO> petDTOs = petDetailsServices.getAllPetDetails();
 
-        logger.info("Fetched {} pets.", petDataDTOs.size());
+        logger.info("Fetched {} pets.", petDTOs.size());
         return new ResponseEntity<>(
                 ResponseDTO.builder()
-                        .message("Successfully retrieved all "+petDataDTOs.size()+" pets details ")
-                        .data(petDataDTOs)
+                        .message("Successfully retrieved all "+petDTOs.size()+" pets details ")
+                        .data(petDTOs)
                         .build(),
                 HttpStatus.OK
         );
@@ -52,9 +47,8 @@ public class PetDetailsController {
     public ResponseEntity<ResponseDTO> registerPet(@Valid @RequestBody PetRequestDTO requestDTO) {
         logger.info("Received request to register a new pet for owner: {}", requestDTO.getOwnerName());
 
-        PetDetails petDetails = petDetailsServices.mapToEntity(requestDTO);
-        PetDetails savedPet = petDetailsServices.createPetDetails(petDetails);
-        PetDataDTO responseData = petDetailsServices.mapToResponse(savedPet);
+        PetDetails petDetailsToSave = Mapper.mapToEntity(requestDTO);
+        PetDTO responseData = petDetailsServices.createPetDetails(petDetailsToSave);
 
         logger.info("Pet registered successfully with ID: {}", responseData.getId());
         return new ResponseEntity <> (
@@ -70,10 +64,10 @@ public class PetDetailsController {
     public ResponseEntity<ResponseDTO> getPetById(@PathVariable Long id){
         logger.info("Received request to get pet by ID: {}", id);
 
-        Optional<PetDetails> petOptional=petDetailsServices.getPetDetailsById(id);
+        Optional<PetDTO> petOptional = petDetailsServices.getPetDetailsById(id);
 
         if(petOptional.isPresent()){
-            PetDataDTO responseData=petDetailsServices.mapToResponse(petOptional.get());
+            PetDTO responseData = petOptional.get(); // Get PetDTO directly
             return new ResponseEntity<>(ResponseDTO.builder()
                     .message("Fetched Pet details with pet Id: "+id)
                     .data(responseData)
@@ -88,10 +82,9 @@ public class PetDetailsController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO> updatePetDetailsById(@PathVariable Long id, @Valid @RequestBody PetRequestDTO requestDTO){
         logger.info("Received request to update pet with ID: {}", id);
-        PetDetails petDetailsToUpdate = petDetailsServices.mapToEntity(requestDTO);
-        PetDetails updatedPet = petDetailsServices.updatePetDetails(id, petDetailsToUpdate);
 
-        PetDataDTO responseData = petDetailsServices.mapToResponse(updatedPet);
+        PetDetails petDetailsToUpdate = Mapper.mapToEntity(requestDTO);
+        PetDTO responseData = petDetailsServices.updatePetDetails(id, petDetailsToUpdate);
 
         logger.info("Pet with ID {} updated successfully.", id);
         return new ResponseEntity<>(ResponseDTO.builder()
@@ -104,7 +97,9 @@ public class PetDetailsController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deletePetDetails(@PathVariable Long id){
         logger.info("Received request to delete pet with ID: {}", id);
-        petDetailsServices.deletePetDetails(id); //this will throw exception if not present
+
+        petDetailsServices.deletePetDetails(id);
+
         logger.info("Pet with ID {} deleted successfully.", id);
         return new ResponseEntity<>(ResponseDTO.builder()
                 .message("Pet deleted successfully")
@@ -115,14 +110,14 @@ public class PetDetailsController {
 
     @GetMapping("/vaccinated/{name}")
     public ResponseEntity<ResponseDTO> getPetsWithSameVaccine(@PathVariable String name) {
-        List<PetDetails> petDetailsList = petDetailsServices.getPetsByVaccinationName(name);
-        List<PetDataDTO> petDataDTO = petDetailsList.stream()
-                .map(petDetailsServices::mapToResponse)
-                .toList();
+        logger.info("Received request to get pets vaccinated for: {}", name);
 
+        List<PetDTO> petDTOs = petDetailsServices.getPetsByVaccinationName(name);
+
+        logger.info("Fetched {} pets vaccinated for {}.", petDTOs.size(), name);
         return new ResponseEntity<>(ResponseDTO.builder()
                 .message("Fetched all pet details with vaccination: " + name)
-                .data(petDataDTO)
+                .data(petDTOs)
                 .build(), HttpStatus.OK);
     }
 }
