@@ -29,7 +29,6 @@ public class PetDetailsController {
 
     @GetMapping({"/","/get",""})
     public ResponseEntity<ResponseDTO> getAllPets() {
-        logger.info("Received request to get all pets.");
 
         List<PetResponseDTO> petDTOs = petDetailsServices.getAllPetDetails();
 
@@ -45,7 +44,6 @@ public class PetDetailsController {
 
     @PostMapping("/create")
     public ResponseEntity<ResponseDTO> registerPet(@Valid @RequestBody PetRequestDTO requestDTO) {
-        logger.info("Received request to register a new pet for owner: {}", requestDTO.getOwnerName());
 
         PetDetails petDetailsToSave = Mapper.mapToEntity(requestDTO);
         PetResponseDTO responseData = petDetailsServices.createPetDetails(petDetailsToSave);
@@ -62,8 +60,6 @@ public class PetDetailsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO> getPetById(@PathVariable Long id){
-        logger.info("Received request to get pet by ID: {}", id);
-
         Optional<PetResponseDTO> petOptional = petDetailsServices.getPetDetailsById(id);
 
         if(petOptional.isPresent()){
@@ -81,12 +77,10 @@ public class PetDetailsController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO> updatePetDetailsById(@PathVariable Long id, @Valid @RequestBody PetRequestDTO requestDTO){
-        logger.info("Received request to update pet with ID: {}", id);
 
         PetDetails petDetailsToUpdate = Mapper.mapToEntity(requestDTO);
         PetResponseDTO responseData = petDetailsServices.updatePetDetails(id, petDetailsToUpdate);
 
-        logger.info("Pet with ID {} updated successfully.", id);
         return new ResponseEntity<>(ResponseDTO.builder()
                 .message("Pet updated successfully")
                 .data(responseData)
@@ -97,8 +91,6 @@ public class PetDetailsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deletePetDetails(@PathVariable Long id){
-        logger.info("Received request to delete pet with ID: {}", id);
-
         petDetailsServices.deletePetDetails(id);
 
         logger.info("Pet with ID {} deleted successfully.", id);
@@ -111,11 +103,8 @@ public class PetDetailsController {
 
     @GetMapping("/vaccinated/{name}")
     public ResponseEntity<ResponseDTO> getPetsWithSameVaccine(@PathVariable String name) {
-        logger.info("Received request to get pets vaccinated for: {}", name);
-
         List<PetResponseDTO> petDTOs = petDetailsServices.getPetsByVaccinationName(name);
 
-        logger.info("Fetched {} pets vaccinated for {}.", petDTOs.size(), name);
         return new ResponseEntity<>(ResponseDTO.builder()
                 .message("Fetched all pet details with vaccination: " + name)
                 .data(petDTOs)

@@ -25,9 +25,7 @@ public class PetServiceImplementation implements PetDetailsServices {
 
     @Override
     public PetResponseDTO createPetDetails(PetDetails petDetail) {
-        logger.info("Saving new Pet Details {}", petDetail.getPetName());
         PetDetails savedPetDetails = petDetailsRepository.save(petDetail);
-        logger.info("Pet Details Saved with ID:{}", savedPetDetails.getId());
 
         if(emailService.sendRegistrationEmail(petDetail.getOwnerEmail(),petDetail.getPetName())){
             logger.info("Pet Details Saved with Email Sent to owner");
@@ -40,7 +38,6 @@ public class PetServiceImplementation implements PetDetailsServices {
 
     @Override
     public PetResponseDTO updatePetDetails(Long id, PetDetails updatedPetDetails) {
-        logger.info("Updating Pet Details for ID: {}", id);
         PetDetails newUpdatedPetDetails = petDetailsRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Attempted to update non-existent pet Details with ID: {}.", id);
@@ -61,9 +58,7 @@ public class PetServiceImplementation implements PetDetailsServices {
 
     @Override
     public List<PetResponseDTO> getAllPetDetails() {
-        logger.info("Getting all Pet Details");
         List<PetDetails> petDetails = petDetailsRepository.findAll();
-        logger.info("Found {} Pet Details", petDetails.size());
         return petDetails.stream().
                 map(Mapper::mapToDTO)
                 .collect(Collectors.toList());
@@ -83,13 +78,11 @@ public class PetServiceImplementation implements PetDetailsServices {
 
     @Override
     public void deletePetDetails(Long id) {
-        logger.info("Attempting to delete pet details with ID: {}.", id);
         if (!petDetailsRepository.existsById(id)) {
             logger.error("Cannot delete: Pet with ID: {} does not exist.", id);
             throw new PetNotFoundException("Pet with ID: " + id + " was not found.");
         }
         petDetailsRepository.deleteById(id);
-        logger.info("Pet with ID: {} deleted successfully.", id);
     }
 
     @Override

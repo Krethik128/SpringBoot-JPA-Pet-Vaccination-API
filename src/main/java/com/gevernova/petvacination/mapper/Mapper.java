@@ -20,7 +20,6 @@ public class Mapper {
     private static final Logger logger = LoggerFactory.getLogger(Mapper.class);
 
     public static PetDetails mapToEntity(PetRequestDTO requestDTO) {
-        logger.debug("Converting PetDetailsRequestDTO to PetDetails entity using Builder.");
         List<VaccinationDetails> vaccinationDetailsList = null;
         if (requestDTO.getVaccines() != null) {
             vaccinationDetailsList = requestDTO.getVaccines().stream()
@@ -48,7 +47,6 @@ public class Mapper {
         if (petDetails == null) {
             return null;
         }
-        logger.debug("Converting pet entity with ID {} to PetDataDTO using Builder.", petDetails.getId());
 
         List<VaccinationDTO> vaccinationDataDTOList = null;
         if (petDetails.getVaccines() != null) {
