@@ -1,6 +1,6 @@
 package com.gevernova.petvacination.service;
 
-import com.gevernova.petvacination.dto.PetDTO;
+import com.gevernova.petvacination.dto.PetResponseDTO;
 import com.gevernova.petvacination.entity.PetDetails;
 import com.gevernova.petvacination.exceptionhandling.PetNotFoundException;
 import com.gevernova.petvacination.mapper.Mapper;
@@ -20,21 +20,26 @@ import org.slf4j.LoggerFactory;
 public class PetServiceImplementation implements PetDetailsServices {
 
     private final PetDetailsRepository petDetailsRepository;
-
+    private final EmailService emailService;
     private static final Logger logger = LoggerFactory.getLogger(PetServiceImplementation.class);
 
     @Override
-    public PetDTO createPetDetails(PetDetails petDetail) {
+    public PetResponseDTO createPetDetails(PetDetails petDetail) {
         logger.info("Saving new Pet Details {}", petDetail.getPetName());
         PetDetails savedPetDetails = petDetailsRepository.save(petDetail);
         logger.info("Pet Details Saved with ID:{}", savedPetDetails.getId());
+
+        if(emailService.sendRegistrationEmail(petDetail.getOwnerEmail(),petDetail.getPetName())){
+            logger.info("Pet Details Saved with Email Sent to owner");
+        }
+
         return Mapper.mapToDTO(savedPetDetails);
     }
 
 
 
     @Override
-    public PetDTO updatePetDetails(Long id, PetDetails updatedPetDetails) {
+    public PetResponseDTO updatePetDetails(Long id, PetDetails updatedPetDetails) {
         logger.info("Updating Pet Details for ID: {}", id);
         PetDetails newUpdatedPetDetails = petDetailsRepository.findById(id)
                 .orElseThrow(() -> {
@@ -46,6 +51,7 @@ public class PetServiceImplementation implements PetDetailsServices {
         newUpdatedPetDetails.setBreed(updatedPetDetails.getBreed());
         newUpdatedPetDetails.setOwnerContact(updatedPetDetails.getOwnerContact());
         newUpdatedPetDetails.setOwnerName(updatedPetDetails.getOwnerName());
+        newUpdatedPetDetails.setOwnerEmail(updatedPetDetails.getOwnerEmail());
         newUpdatedPetDetails.setVaccines(updatedPetDetails.getVaccines());
 
         PetDetails savedPetDetails = petDetailsRepository.save(newUpdatedPetDetails); // Save the updated entity
@@ -54,7 +60,7 @@ public class PetServiceImplementation implements PetDetailsServices {
     }
 
     @Override
-    public List<PetDTO> getAllPetDetails() {
+    public List<PetResponseDTO> getAllPetDetails() {
         logger.info("Getting all Pet Details");
         List<PetDetails> petDetails = petDetailsRepository.findAll();
         logger.info("Found {} Pet Details", petDetails.size());
@@ -64,7 +70,7 @@ public class PetServiceImplementation implements PetDetailsServices {
     }
 
     @Override
-    public Optional<PetDTO> getPetDetailsById(Long id) {
+    public Optional<PetResponseDTO> getPetDetailsById(Long id) {
         Optional<PetDetails> pet = petDetailsRepository.findById(id);
         if (pet.isPresent()) {
             logger.debug("Fetched pet Details for Pet ID: {}", id);
@@ -87,7 +93,7 @@ public class PetServiceImplementation implements PetDetailsServices {
     }
 
     @Override
-    public List<PetDTO> getPetsByVaccinationName(String vaccineName){
+    public List<PetResponseDTO> getPetsByVaccinationName(String vaccineName){
         List<PetDetails> petDetailsList = petDetailsRepository.petsVaccinatedBySameDisease(vaccineName);
         return petDetailsList.stream()
                 .map(Mapper::mapToDTO)

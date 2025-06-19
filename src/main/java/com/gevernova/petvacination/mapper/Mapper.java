@@ -1,6 +1,6 @@
 package com.gevernova.petvacination.mapper;
 
-import com.gevernova.petvacination.dto.PetDTO;
+import com.gevernova.petvacination.dto.PetResponseDTO;
 import com.gevernova.petvacination.dto.PetRequestDTO;
 import com.gevernova.petvacination.dto.VaccinationDTO;
 import com.gevernova.petvacination.entity.PetDetails;
@@ -37,13 +37,14 @@ public class Mapper {
                 .breed(requestDTO.getBreed())
                 .ownerName(requestDTO.getOwnerName())
                 .ownerContact(requestDTO.getOwnerContact())
+                .ownerEmail(requestDTO.getOwnerEmail())
                 .vaccines(vaccinationDetailsList != null ? vaccinationDetailsList : List.of()) // Handle null list
                 .build();
 
     }
 
     // Business logic for mapping Entity to Response DTO using Builder
-    public static PetDTO mapToDTO(PetDetails petDetails) {
+    public static PetResponseDTO mapToDTO(PetDetails petDetails) {
         if (petDetails == null) {
             return null;
         }
@@ -59,13 +60,14 @@ public class Mapper {
                     .collect(Collectors.toList());
         }
 
-        return PetDTO.builder() // Use builder for PetDataDTO
+        return PetResponseDTO.builder() // Use builder for PetDataDTO
                 .id(petDetails.getId())
                 .name(petDetails.getPetName()) // Mapping entity 'petName' to DTO 'name'
                 .species(petDetails.getSpecies())
                 .breed(petDetails.getBreed())
                 .ownerName(petDetails.getOwnerName())
                 .ownerContact(petDetails.getOwnerContact())
+                .ownerEmail(petDetails.getOwnerEmail())
                 .vaccines(vaccinationDataDTOList != null ? vaccinationDataDTOList : List.of()) // Handle null list
                 .build();
     }

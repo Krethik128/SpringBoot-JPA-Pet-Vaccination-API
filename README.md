@@ -2,23 +2,23 @@
 
 A robust Spring Boot application designed to manage pet details and their vaccination records. It provides a clean, RESTful API for seamless interaction, built with a strong emphasis on modern software design principles and patterns.
 
-##  Features
+## ✨ Features
 
 - **Pet Management (CRUD)**:
-    - Create new pet records, including their vaccination history.
-    - Retrieve details of all registered pets.
-    - Fetch specific pet details by ID.
-    - Update existing pet information and vaccination records.
-    - Delete pet records.
+  - Create new pet records, including their vaccination history.
+  - Retrieve details of all registered pets.
+  - Fetch specific pet details by ID.
+  - Update existing pet information and vaccination records.
+  - Delete pet records.
 - **Vaccination Search**:
-    - Search for pets based on a specific vaccination name.
+  - Search for pets based on a specific vaccination name.
 - **Standardized API Responses**: All API operations return a consistent `ResponseDTO` structure, simplifying client-side consumption for both success and error scenarios.
 - **Centralized Error Handling**: A global exception handler ensures uniform and consistent error responses across the API.
 - **Layered Architecture**: Clear separation of concerns (Controller, Service, Repository, DTOs, Entities, Mapper).
 - **Aspect-Oriented Programming (AOP)**: Utilizes Spring AOP for centralized logging of service method execution, keeping business logic clean and focused.
 - **Type-Safe Data Mapping**: Dedicated `Mapper` class handles conversions between DTOs and entities, ensuring data integrity and readability.
 
-##  Technologies Used
+## 🚀 Technologies Used
 
 - **Spring Boot**: Framework for building production-ready, stand-alone Spring applications.
 - **Spring Data JPA**: Simplifies data access and persistence with JPA.
@@ -26,9 +26,37 @@ A robust Spring Boot application designed to manage pet details and their vaccin
 - **H2 Database (In-memory)**: Used for development and testing, easily configurable for external databases like MySQL or PostgreSQL.
 - **Lombok**: Reduces boilerplate code (getters, setters, constructors, builders).
 - **Maven**: Dependency management and build automation.
+- **AspectJ (via Spring AOP)**: For implementing cross-cutting concerns (e.g., logging).
+- **SLF4j & Logback**: For robust logging.
 - **Jakarta Validation**: For declarative validation of request bodies.
 
-## ️ Getting Started
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- Java Development Kit (JDK) 17 or higher
+- Maven 3.x
+
+### Cloning the Repository
+
+```bash
+git clone <repository-url> # Replace <repository-url> with your actual repository URL
+cd pet-vaccination-management
+```
+
+### Building the Project
+
+```bash
+mvn clean install
+```
+
+### Running the Application
+
+You can run the application using Maven:
+
+```bash
+mvn spring-boot:run
+```
 
 The application will typically start on `http://localhost:8080` by default.
 
@@ -39,10 +67,11 @@ This project is structured adhering to several key software design principles an
 - **Single Responsibility Principle (SRP)**: Each class (e.g., PetDetailsController, PetServiceImplementation, PetDetailsRepository, Mapper, DTOs) has a single, well-defined reason to change.
 
 - **Separation of Concerns (SoC)**: The codebase is clearly divided into distinct layers:
-    - **Presentation Layer**: PetDetailsController handles HTTP requests and responses.
-    - **Business/Service Layer**: PetServiceImplementation contains the core application logic.
-    - **Data Access Layer**: PetDetailsRepository manages database interactions.
-    - **Data Transfer Objects (DTOs)**: Act as data carriers between layers and define API contracts.
+  - **Presentation Layer**: PetDetailsController handles HTTP requests and responses.
+  - **Business/Service Layer**: PetServiceImplementation contains the core application logic.
+  - **Data Access Layer**: PetDetailsRepository manages database interactions.
+  - **Data Transfer Objects (DTOs)**: Act as data carriers between layers and define API contracts.
+  - **Aspects**: LoggingAspect handles cross-cutting concerns like logging.
 
 - **Dependency Inversion Principle (DIP)**: High-level modules (PetDetailsController) depend on abstractions (PetDetailsServices interface) rather than concretions (PetServiceImplementation), promoting loose coupling and testability.
 
@@ -56,9 +85,11 @@ This project is structured adhering to several key software design principles an
 
 - **Builder Pattern**: Extensively used via Lombok's @Builder annotation for creating instances of entities and DTOs in a readable and flexible manner.
 
+- **Aspect-Oriented Programming (AOP)**: Applied for centralized logging, demonstrating how cross-cutting concerns can be modularized and applied dynamically without cluttering core business logic.
+
 - **Standardized API Response Structure**: The consistent use of `ResponseEntity<ResponseDTO>` across all controller methods provides a predictable and easy-to-consume API.
 
-##  API Endpoints
+## 📖 API Endpoints
 
 The API is accessible under the `/api/pets` base path. All responses, whether successful or erroneous, will adhere to the `ResponseDTO` format.
 
@@ -67,9 +98,7 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
 ```json
 {
   "message": "A descriptive message about the operation.",
-  "data": {
-    /* The actual data payload (e.g., a PetDTO object or list of PetDTOs), or null for operations like deletion. */
-  }
+  "data": {}
 }
 ```
 
@@ -108,7 +137,16 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
       "breed": "Golden Retriever",
       "ownerName": "Alice Smith",
       "ownerContact": "1234567890",
-      "vaccines": [...]
+      "vaccines": [
+        {
+          "name": "Rabies",
+          "dateGiven": "2023-01-15"
+        },
+        {
+          "name": "Distemper",
+          "dateGiven": "2023-03-01"
+        }
+      ]
     }
   }
   ```
@@ -135,7 +173,16 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
         "breed": "Golden Retriever",
         "ownerName": "Alice Smith",
         "ownerContact": "1234567890",
-        "vaccines": [...]
+        "vaccines": [
+          {
+            "name": "Rabies",
+            "dateGiven": "2023-01-15"
+          },
+          {
+            "name": "Distemper",
+            "dateGiven": "2023-03-01"
+          }
+        ]
       },
       {
         "id": 2,
@@ -144,7 +191,16 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
         "breed": "Persian",
         "ownerName": "Bob Johnson",
         "ownerContact": "0987654321",
-        "vaccines": [...]
+        "vaccines": [
+          {
+            "name": "FVRCP",
+            "dateGiven": "2023-02-10"
+          },
+          {
+            "name": "Rabies",
+            "dateGiven": "2023-04-15"
+          }
+        ]
       }
     ]
   }
@@ -166,7 +222,16 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
       "breed": "Golden Retriever",
       "ownerName": "Alice Smith",
       "ownerContact": "1234567890",
-      "vaccines": [...]
+      "vaccines": [
+        {
+          "name": "Rabies",
+          "dateGiven": "2023-01-15"
+        },
+        {
+          "name": "Distemper",
+          "dateGiven": "2023-03-01"
+        }
+      ]
     }
   }
   ```
@@ -212,7 +277,16 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
       "breed": "Golden Retriever",
       "ownerName": "Alice Smith",
       "ownerContact": "0987654321",
-      "vaccines": [...]
+      "vaccines": [
+        {
+          "name": "Rabies",
+          "dateGiven": "2023-01-15"
+        },
+        {
+          "name": "Parvo",
+          "dateGiven": "2024-05-20"
+        }
+      ]
     }
   }
   ```
@@ -259,12 +333,54 @@ The API is accessible under the `/api/pets` base path. All responses, whether su
         "breed": "Golden Retriever",
         "ownerName": "Alice Smith",
         "ownerContact": "1234567890",
-        "vaccines": [...]
+        "vaccines": [
+          {
+            "name": "Rabies",
+            "dateGiven": "2023-01-15"
+          },
+          {
+            "name": "Distemper",
+            "dateGiven": "2023-03-01"
+          }
+        ]
       }
     ]
   }
   ```
 - **Note**: Typically returns HTTP 200 OK with an empty list if no pets found with the specified vaccination.
+
+## 🧪 Testing the API
+
+You can test the API using tools like Postman, curl, or any REST client. Here are some example requests:
+
+### Create a new pet:
+```bash
+curl -X POST http://localhost:8080/api/pets \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Max",
+    "species": "DOG",
+    "breed": "Labrador",
+    "ownerName": "John Doe",
+    "ownerContact": "1234567890",
+    "vaccines": [
+      {
+        "name": "Rabies",
+        "dateGiven": "2023-01-15"
+      }
+    ]
+  }'
+```
+
+### Get all pets:
+```bash
+curl -X GET http://localhost:8080/api/pets
+```
+
+### Get pets with specific vaccination:
+```bash
+curl -X GET http://localhost:8080/api/pets/vaccinated/Rabies
+```
 
 ## 🏗️ Project Structure
 
@@ -276,9 +392,10 @@ src/main/java/
 ├── entity/            # JPA Entities
 ├── dto/               # Data Transfer Objects
 ├── mapper/            # Entity-DTO Mapping
+├── aspect/            # AOP Aspects (Logging)
 └── exception/         # Custom Exceptions
 
 src/main/resources/
 ├── application.properties
+└── data.sql           # Sample data (if any)
 ```
-

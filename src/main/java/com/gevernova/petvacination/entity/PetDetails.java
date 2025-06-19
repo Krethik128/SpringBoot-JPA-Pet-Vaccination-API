@@ -32,6 +32,9 @@ public class PetDetails {
     @Column(nullable = false)
     private String ownerContact;
 
+    @Column(nullable = false)
+    private String ownerEmail;
+
     @ElementCollection
     @CollectionTable(name="pet_vaccine" ,joinColumns=@JoinColumn(name="pet_id"))
     private java.util.List<VaccinationDetails> vaccines;

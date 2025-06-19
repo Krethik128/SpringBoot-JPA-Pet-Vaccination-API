@@ -2,13 +2,10 @@ package com.gevernova.petvacination.dto;
 
 import com.gevernova.petvacination.entity.Species;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 
-@Getter
+@Data
 public class PetRequestDTO {
 
     @NotBlank
@@ -27,6 +24,10 @@ public class PetRequestDTO {
     @NotBlank(message = "Owner contact is required")
     @Pattern(regexp = "^[0-9]{10}$", message = "Contact number must be 10 digits long")
     private String ownerContact;
+
+    @NotBlank(message = "Email should not be empty")
+    @Email
+    private String ownerEmail;
 
     @Valid
     private java.util.List<VaccinationRequestDTO> vaccines; //s;
